@@ -11,6 +11,12 @@ class CalendarCellWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+
+    if (cell.isPlaceholder) {
+      return const SizedBox.expand();
+    }
+
+
     return Container(
       margin: const EdgeInsets.all(1),
       padding: const EdgeInsets.all(6),
@@ -18,6 +24,7 @@ class CalendarCellWidget extends StatelessWidget {
         border: Border.all(color: Colors.grey.shade400),
         color: Colors.white,
       ),
+     
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -33,13 +40,21 @@ class CalendarCellWidget extends StatelessWidget {
           const SizedBox(height: 2),
 
           // 🔹 Gregorian Date (small)
-          Text(
-            '${cell.date.day.toString().padLeft(2, '0')}/${cell.date.month.toString().padLeft(2, '0')}',
-            style: TextStyle(
-              fontSize: 10,
-              color: Colors.grey.shade600,
-            ),
-          ),
+          Row(
+            children:  [
+              Expanded(child: const SizedBox()),
+              Expanded(child:
+                Text(
+                  '${cell.date.day.toString().padLeft(2, '0')}/${cell.date.month.toString().padLeft(2, '0')}',
+                  style: TextStyle(
+                    fontSize: 10,
+                    color: Colors.grey.shade600,
+                  ),
+                ),
+              ),
+              Expanded(child: const SizedBox()),
+              Expanded(child: const SizedBox())
+            ]),
 
           const Spacer(),
 
@@ -54,6 +69,7 @@ class CalendarCellWidget extends StatelessWidget {
                 ),
               ),
 
+
           // Optional: show "+ more"
           if (cell.events.length > 3)
             Text(
@@ -63,5 +79,8 @@ class CalendarCellWidget extends StatelessWidget {
         ],
       ),
     );
+
+
+
   }
 }

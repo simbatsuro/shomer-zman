@@ -5,11 +5,13 @@ class CalendarCell {
   final int lunarDay;
   final DateTime date;
   final List<Event> events;
+  final bool isPlaceholder;
 
   CalendarCell({
     required this.lunarDay,
     required this.date,
     required this.events,
+    this.isPlaceholder = false,
   });
 
   factory CalendarCell.empty(DateTime date) {
@@ -17,6 +19,7 @@ class CalendarCell {
       lunarDay: 0,
       date: date,
       events: const [],
+      isPlaceholder: true,
     );
   }
 }
@@ -41,19 +44,29 @@ class CalendarMapper {
     List<CalendarCell?> currentRow = List.filled(columns, null);
 
     for (int lunarDay = 1; lunarDay <= daysInMonth; lunarDay++) {
-      final DateTime date =
-          monthStart.add(Duration(days: lunarDay - 1));
+      // final DateTime date =
+          // monthStart.add(Duration(days: lunarDay - 1));
+
+      final DateTime lunarDayStart =
+        monthStart.add(Duration(days: lunarDay - 1));
+
+      // Move to next day's midnight
+      final DateTime midnightDate = DateTime(
+        lunarDayStart.year,
+        lunarDayStart.month,
+        lunarDayStart.day,
+      ).add(const Duration(days: 1));
 
       final int column = (lunarDay + 5) % 7;
 
       final dayEvents = events.where((e) =>
-          e.dateTime.year == date.year &&
-          e.dateTime.month == date.month &&
-          e.dateTime.day == date.day).toList();
+          e.dateTime.year == midnightDate.year &&
+          e.dateTime.month == midnightDate.month &&
+          e.dateTime.day == midnightDate.day).toList();
 
       currentRow[column] = CalendarCell(
         lunarDay: lunarDay,
-        date: date,
+        date: midnightDate,
         events: dayEvents,
       );
 
@@ -70,6 +83,7 @@ class CalendarMapper {
                     lunarDay: 0,
                     date: monthStart,
                     events: const [],
+                    isPlaceholder: true,
                   );
             }).toList(),
           ),
