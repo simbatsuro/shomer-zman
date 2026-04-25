@@ -65,7 +65,7 @@ class _SubHeaderCell extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: 28,
+      height: 18,
       child: Row(
         children: List.generate(4, (index) {
           return Expanded(
@@ -170,8 +170,9 @@ class _PhaseBlock extends StatelessWidget {
                       top: 0,
                       bottom: 0,
                       child: Container(
-                        width: 2,
-                        color: Colors.yellow[300],
+                        width: 3,
+                        // color: Colors.yellow[300],
+                        color: Colors.yellow.shade400,
                       ),
                     ),
                   ],

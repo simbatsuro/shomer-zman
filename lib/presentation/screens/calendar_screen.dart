@@ -10,7 +10,7 @@ import '../../domain/services/lunar_engine.dart';
 
 import '../widgets/calendar/lunar_calendar_grid.dart';
 import '../widgets/calendar/calendar_header.dart';
-import '../widgets/calendar/calendar_timephase_subheader.dart';
+import '../widgets/calendar/timephase_subheader.dart';
 
 class CalendarScreen extends ConsumerWidget {
   const CalendarScreen({super.key});
@@ -109,21 +109,32 @@ class CalendarScreen extends ConsumerWidget {
         ],
       ),
 
-      body: Column(
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: buildSightingInfo(sighting),
-          ),
+      body: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 4),
+          child: Column(
+            children: [
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                child: buildSightingInfo(sighting),
+              ),
 
-          const CalendarHeader(),
-          const TimePhaseSubHeader(),
+              const SizedBox(height: 6),
 
-          Expanded(
-            child: LunarCalendarGrid(weeks: weeks),
+              const CalendarHeader(),
+
+              const TimePhaseSubHeader(),
+
+              const SizedBox(height: 6),
+
+              Expanded(
+                child:
+                  LunarCalendarGrid(weeks: weeks),
+                ),
+            ],
           ),
-        ],
-      ),
+        ),
+      )
     );
   }
 
@@ -131,25 +142,31 @@ class CalendarScreen extends ConsumerWidget {
     if (sighting == null) {
       return const Text(
         'No moon sighting recorded',
-        style: TextStyle(fontSize: 12),
+        style: TextStyle(fontSize: 12, color: Colors.grey),
       );
     }
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Text(
-          'Last Moon Sighting',
-          style: TextStyle(
-            fontSize: 12,
-            fontWeight: FontWeight.w600,
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      decoration: BoxDecoration(
+        color: Colors.grey.shade100,
+        borderRadius: BorderRadius.circular(10),
+      ),
+      child: Row(
+        children: [
+          const Icon(Icons.brightness_3, size: 16),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(
+              formatSighting(sighting.recordedAt),
+              style: const TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
           ),
-        ),
-        Text(
-          formatSighting(sighting.recordedAt),
-          style: const TextStyle(fontSize: 11),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }

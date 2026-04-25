@@ -36,10 +36,11 @@ class CalendarHeader extends StatelessWidget {
               child: Text(
                 col.label,
                 textAlign: TextAlign.center,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
                 style: const TextStyle(
-                  fontSize: 12,
+                  fontSize: 11,
                   fontWeight: FontWeight.w600,
-                  letterSpacing: 0.2,
                 ),
               ),
             ),

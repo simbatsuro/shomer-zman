@@ -17,63 +17,103 @@ class CalendarCellWidget extends StatelessWidget {
     }
 
     return Container(
-      margin: const EdgeInsets.all(1),
-      padding: const EdgeInsets.all(6),
+      margin: EdgeInsets.zero,
+      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
       decoration: BoxDecoration(
-        border: Border.all(color: Colors.grey.shade400),
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: Colors.grey.shade300),
         color: Colors.white,
       ),
-     
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Lunar Day (Top Left)
-          Text(
-            '${cell.lunarDay}'.padLeft(2, '0'),
-            style: const TextStyle(
-              fontWeight: FontWeight.bold,
-              fontSize: 14,
+          SizedBox(
+            height: 16,
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                final colWidth = constraints.maxWidth / 4;
+
+                return Stack(
+                  children: [
+                    // Invisible 4-column grid (keeps alignment)
+                    Row(
+                      children: const [
+                        Expanded(child: SizedBox()),
+                        Expanded(child: SizedBox()),
+                        Expanded(child: SizedBox()),
+                        Expanded(child: SizedBox()),
+                      ],
+                    ),
+
+                    // Lunar day spanning col1 + col2
+                    Positioned(
+                      left: 0,
+                      width: colWidth * 2,
+                      child: Text(
+                        cell.lunarDay.toString().padLeft(2, '0'),
+                        style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 12,
+                        ),
+                        overflow: TextOverflow.visible,
+                      ),
+                    ),
+                  ],
+                );
+              },
             ),
           ),
 
-          const SizedBox(height: 2),
+          SizedBox(
+            height: 14,
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                final colWidth = constraints.maxWidth / 4;
 
-          // Gregorian Date (small)
-          Row(
-            children:  [
-              Expanded(child: const SizedBox()),
-              Expanded(child:
-                Text(
-                  '${cell.date.day.toString().padLeft(2, '0')}/${cell.date.month.toString().padLeft(2, '0')}',
-                  style: TextStyle(
-                    fontSize: 10,
-                    color: Colors.grey.shade600,
-                  ),
-                ),
-              ),
-              Expanded(child: const SizedBox()),
-              Expanded(child: const SizedBox())
-            ]),
+                return Stack(
+                  children: [
+                    // keep 4-column structure
+                    Row(
+                      children: const [
+                        Expanded(child: SizedBox()),
+                        Expanded(child: SizedBox()),
+                        Expanded(child: SizedBox()),
+                        Expanded(child: SizedBox()),
+                      ],
+                    ),
 
-          const Spacer(),
-
-          // Events (stacked)
-          ...cell.events.take(3).map(
-                (event) => Text(
-                  event.title,
-                  style: const TextStyle(
-                    fontSize: 10,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ),
-              ),
-
-          // Optional: show "+ more"
-          if (cell.events.length > 3)
-            Text(
-              '+${cell.events.length - 3} more',
-              style: const TextStyle(fontSize: 9),
+                    // 🔥 Gregorian date spans 2 columns
+                    Positioned(
+                      left: colWidth,           // start at column 2
+                      width: colWidth * 2,
+                      child: Container(
+                        padding: const EdgeInsets.only(left: 4),
+                        decoration: BoxDecoration(
+                          border: Border(
+                            left: BorderSide(
+                              color: Colors.grey.withValues(alpha: 0.35),
+                              width: 1,
+                            ),
+                          ),
+                        ),
+                        // span column 2 + 3
+                        child: Text(
+                          '${cell.date.day.toString().padLeft(2, '0')}/${cell.date.month.toString().padLeft(2, '0')}',
+                          maxLines: 1,
+                          softWrap: false,
+                          overflow: TextOverflow.visible,
+                          style: TextStyle(
+                            fontSize: 9,
+                            color: Colors.grey.shade600,
+                          ),
+                        ),
+                      ),
+                    )
+                  ],
+                );
+              },
             ),
+          ),
         ],
       ),
     );
