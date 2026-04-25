@@ -1,6 +1,8 @@
+import '../constants/time_constants.dart';
+
 class DateUtilsHelper {
   static bool isBeforeSunset(DateTime dt) {
-    return dt.hour < 18;
+    return dt.hour < TimeConstants.sunsetHour;
   }
 
   static DateTime stripTime(DateTime dt) {

@@ -2,11 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../application/providers/event_provider.dart';
-import '../../application/providers/lunar_provider.dart';
 import '../../application/providers/sighting_provider.dart';
+import '../../core/config/app_defaults.dart';
 import '../../domain/models/moon_sighting.dart';
-import '../../domain/services/lunar_engine.dart';
 import '../../domain/services/calendar_mapper.dart';
+import '../../domain/services/lunar_engine.dart';
 
 import '../widgets/calendar/lunar_calendar_grid.dart';
 import '../widgets/calendar/calendar_header.dart';
@@ -30,12 +30,12 @@ class CalendarScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final now = ref.watch(nowProvider);
+
     final events = ref.watch(eventProvider);
     final sighting = ref.watch(sightingProvider);
 
     final monthStart = sighting?.monthStart ??
-        DateTime(now.year, 4, 19, 18);
+        AppDefaults.defaultYearStart;
 
     final engine = LunarEngine(monthStart);
     final mapper = CalendarMapper();
@@ -61,12 +61,16 @@ class CalendarScreen extends ConsumerWidget {
 
       if (date == null) return;
 
+      if (!context.mounted) return;
+
       final time = await showTimePicker(
         context: context,
         initialTime: TimeOfDay.fromDateTime(now),
       );
 
       if (time == null) return;
+
+      if (!context.mounted) return; // just placed for uniformity as above
 
       final sightingDateTime = DateTime(
         date.year,

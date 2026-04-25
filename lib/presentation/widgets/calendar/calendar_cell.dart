@@ -16,7 +16,6 @@ class CalendarCellWidget extends StatelessWidget {
       return const SizedBox.expand();
     }
 
-
     return Container(
       margin: const EdgeInsets.all(1),
       padding: const EdgeInsets.all(6),
@@ -28,9 +27,9 @@ class CalendarCellWidget extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // 🔹 Lunar Day (Top Left)
+          // Lunar Day (Top Left)
           Text(
-            '${cell.lunarDay.toString().padLeft(2, '0')}',
+            '${cell.lunarDay}'.padLeft(2, '0'),
             style: const TextStyle(
               fontWeight: FontWeight.bold,
               fontSize: 14,
@@ -39,7 +38,7 @@ class CalendarCellWidget extends StatelessWidget {
 
           const SizedBox(height: 2),
 
-          // 🔹 Gregorian Date (small)
+          // Gregorian Date (small)
           Row(
             children:  [
               Expanded(child: const SizedBox()),
@@ -58,7 +57,7 @@ class CalendarCellWidget extends StatelessWidget {
 
           const Spacer(),
 
-          // 🔹 Events (stacked)
+          // Events (stacked)
           ...cell.events.take(3).map(
                 (event) => Text(
                   event.title,
@@ -69,7 +68,6 @@ class CalendarCellWidget extends StatelessWidget {
                 ),
               ),
 
-
           // Optional: show "+ more"
           if (cell.events.length > 3)
             Text(
@@ -79,8 +77,5 @@ class CalendarCellWidget extends StatelessWidget {
         ],
       ),
     );
-
-
-
   }
 }

@@ -1,5 +1,5 @@
-import '../models/event.dart';
 import '../../domain/services/lunar_engine.dart';
+import '../models/event.dart';
 
 class CalendarCell {
   final int lunarDay;
@@ -31,6 +31,11 @@ class CalendarWeek {
 }
 
 class CalendarMapper {
+
+  int getColumnForLunarDay(int lunarDay) {
+    return (lunarDay + 5) % 7;
+  }
+
   List<CalendarWeek> buildMonthGrid({
     required DateTime monthStart,
     required List<Event> events,
@@ -44,8 +49,6 @@ class CalendarMapper {
     List<CalendarCell?> currentRow = List.filled(columns, null);
 
     for (int lunarDay = 1; lunarDay <= daysInMonth; lunarDay++) {
-      // final DateTime date =
-          // monthStart.add(Duration(days: lunarDay - 1));
 
       final DateTime lunarDayStart =
         monthStart.add(Duration(days: lunarDay - 1));
@@ -88,7 +91,7 @@ class CalendarMapper {
             }).toList(),
           ),
         );
-
+        
         currentRow = List.filled(columns, null);
       }
     }

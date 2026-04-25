@@ -1,16 +1,13 @@
 import '../../core/utils/uuid_utils.dart';
-import '../models/moon_sighting.dart';
 import '../../data/local/sighting_box.dart';
+import '../models/moon_sighting.dart';
 import 'lunar_engine.dart';
 
 class SightingService {
   final SightingBox _box = SightingBox();
-  // final LunarEngine _engine = LunarEngine();
 
   Future<MoonSighting> recordSighting(DateTime sightingTime) async {
-    // 1. Compute month start (nearest 18:00)
-    // final monthStart = _engine.getMonthStart(sightingTime);
-
+    // 1. Compute month start (nearest sunset (18:00))
     final monthStart = LunarEngine.normaliseSighting(sightingTime);
 
     // 2. Deactivate previous sightings
