@@ -5,28 +5,47 @@ import '../../../application/providers/now_provider.dart';
 import '../../../application/providers/sighting_provider.dart';
 import '../../../core/constants/time_constants.dart';
 import '../../../core/utils/time_phase_utils.dart';
+import '../../../domain/models/moon_sighting.dart';
 import '../../../domain/services/calendar_mapper.dart';
 import '../../../domain/services/lunar_engine.dart';
 
 class TimePhaseSubHeader extends ConsumerWidget {
   const TimePhaseSubHeader({super.key});
 
+  // ---------------- RESOLVE SIGHTING ----------------
+  MoonSighting? resolveSighting(List<MoonSighting> sightings) {
+    if (sightings.isEmpty) return null;
+
+    // 1. active
+    final active = sightings.where((s) => s.isActive).toList();
+    if (active.isNotEmpty) return active.first;
+
+    // 2. latest
+    final sorted = [...sightings]
+      ..sort((a, b) => b.recordedAt.compareTo(a.recordedAt));
+
+    return sorted.first;
+  }
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-
     final now = ref.watch(nowProvider).maybeWhen(
       data: (value) => value,
       orElse: () => DateTime.now(),
     );
 
-    // ref.watch(nowProvider).whenData((now) {
-    //   debugPrint('NOW: $now');
-    // });
+    // ✅ LIST-BASED PROVIDER
+    final sightings = ref.watch(sightingProvider);
+    final sighting = resolveSighting(sightings);
 
-    final sighting = ref.watch(sightingProvider);
+    final defaultStart = DateTime(
+      now.year,
+      now.month,
+      now.day,
+      TimeConstants.sunsetHour,
+    );
 
-    final monthStart = sighting?.monthStart ??
-        DateTime(now.year, now.month, now.day, TimeConstants.sunsetHour);
+    final monthStart = sighting?.monthStart ?? defaultStart;
 
     final engine = LunarEngine(monthStart);
     final mapper = CalendarMapper();
@@ -70,7 +89,7 @@ class _SubHeaderCell extends StatelessWidget {
         children: List.generate(4, (index) {
           return Expanded(
             child: _PhaseBlock(
-              key: ValueKey(index +1 ), // Added to silence Dart lint warning (unused_element_parameter)
+               key: ValueKey(index +1 ), // Added to silence Dart lint warning (unused_element_parameter)
               phase: index + 1,
               isActivePhase: index == phaseIndex,
               showMarker: isTodayColumn,
@@ -97,30 +116,77 @@ class _PhaseBlock extends StatelessWidget {
     required this.progress,
   });
 
+  // ---------------- GRADIENT ----------------
   static const List<Color> dayCycleGradient = [
-    Color(0xFF6B7A99),
-    Color(0xFF6B7A99),
-    Color(0xFF1C2A4A),
-    Color(0xFF0B1D3A),
-    Color(0xFF162B55),
-    Color(0xFF2F3E6E),
-    Color(0xFF5A6FA3),
-    Color(0xFF9BB7D4),
-    Color(0xFF8EC5E8),
-    Color(0xFF8EC5E8),
-    Color(0xFF6FA8DC),
-    Color(0xFF6FA8DC),
+
+    // 🌇 SUNSET // 🌆 EVENING
+    Color(0xFF7A9EE6),
+    Color(0xFF8FA6E0),
+    // Color(0xFF8FA6E0),
+    Color(0xFF6E7AC8),
+    Color(0xFF5E66B8),
+
+    // 🌌 NIGHT (deepening blue)
+    Color(0xFF4B52A6),
+    Color(0xFF3F4594),
+    Color(0xFF343A84),
+    Color(0xFF2A2F74),
+
+    // 🌑 MIDNIGHT 
+    Color(0xFF212564),
+    Color(0xFF1A1E58),
+    Color(0xFF14184C),
+    Color(0xFF101342),
+
+    // 🌘 EARLY MORNING (pre-dawn lift, still cool)
+    Color(0xFF13204F),
+    Color(0xFF1B2E63),
+    Color(0xFF243D78),
+    Color(0xFF2E4F8F),
+
+    // 🌅 DAWN
+    // Color(0xFF5E66B8),
+    // Color(0xFF6E7AC8),
+    Color(0xFF7A9EE6),
+    Color(0xFF7BC2EE),
+
+    // 🌤 MORNING (clear sky, rising brightness)
+    Color(0xFF8FD3F5),
+    Color(0xFF9FDBF7),
+    Color(0xFFB0E3FA),
+    Color(0xFFC2EBFD),
+
+    // ☀️ MIDDAY (neutral peak, least atmospheric colour)
+    Color(0xFFBFE9FF),
+    Color(0xFFB3E3FF),
+    Color(0xFFA6DDFF),
+    Color(0xFF9AD7FF),
+
+    // 🌇 AFTERNOON (slight warming, still clean blue)
+    Color(0xFF8ECDF6),
+    Color(0xFF7FBEEE),
+    Color(0xFF70AFE6),
+    Color(0xFF63A2DE),
+
+    // 🔁 SUNSET LOOP BACK (bridges into start seamlessly)
+    Color(0xFF5AA9E6),
+    Color(0xFF63B0EA),
+    Color(0xFF63B0EA),
+    Color(0xFF6AAAE9),
+    Color(0xFF72A4E8),
+    Color(0xFF7A9EE6),
+      
     //Source: Inspired by Scott Thrift from
     //https://www.thisiscolossal.com/2016/06/this-24-hour-clock-gradually-transitions-you-from-dusk-to-dawn/#:~:text=Instead%20of%20being%20a%20slave,by%20watching%20numbers%20tick%20by.
 
   ];
 
   List<Color> _getPhaseGradient(int phase) {
-    final int total = dayCycleGradient.length;
-    final int segment = total ~/ 4;
+    final total = dayCycleGradient.length;
+    final segment = total ~/ 4;
 
-    final int start = (phase - 1) * segment;
-    final int end = (phase == 4) ? total : start + segment;
+    final start = (phase - 1) * segment;
+    final end = (phase == 4) ? total : start + segment;
 
     return dayCycleGradient.sublist(start, end);
   }
@@ -131,7 +197,7 @@ class _PhaseBlock extends StatelessWidget {
 
     return Stack(
       children: [
-        // Background
+        // Background gradient
         Container(
           decoration: BoxDecoration(
             gradient: LinearGradient(
@@ -142,7 +208,7 @@ class _PhaseBlock extends StatelessWidget {
           ),
         ),
 
-        // Overlay
+        // Light overlay
         Container(
           decoration: BoxDecoration(
             gradient: LinearGradient(
@@ -159,6 +225,7 @@ class _PhaseBlock extends StatelessWidget {
           ),
         ),
 
+        // Marker
         if (showMarker && isActivePhase)
           Positioned.fill(
             child: LayoutBuilder(
@@ -171,7 +238,6 @@ class _PhaseBlock extends StatelessWidget {
                       bottom: 0,
                       child: Container(
                         width: 3,
-                        // color: Colors.yellow[300],
                         color: Colors.yellow.shade400,
                       ),
                     ),

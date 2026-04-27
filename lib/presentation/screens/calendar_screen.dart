@@ -28,11 +28,30 @@ class CalendarScreen extends ConsumerWidget {
     return '$date at $time';
   }
 
+  /// Resolve best sighting to use
+  MoonSighting? resolveSighting(List<MoonSighting>? sightings) {
+    if (sightings == null || sightings.isEmpty) {
+      return null;
+    }
+
+    // 1. active sighting first
+    final active = sightings.where((s) => s.isActive).toList();
+    if (active.isNotEmpty) {
+      return active.first;
+    }
+
+    // 2. fallback → most recent
+    sightings.sort((a, b) => b.recordedAt.compareTo(a.recordedAt));
+    return sightings.first;
+  }
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-
     final events = ref.watch(eventProvider);
-    final sighting = ref.watch(sightingProvider);
+
+    final sightings = ref.watch(sightingProvider);
+
+    final sighting = resolveSighting(sightings);
 
     final monthStart = sighting?.monthStart ??
         AppDefaults.defaultYearStart;
@@ -60,7 +79,6 @@ class CalendarScreen extends ConsumerWidget {
       );
 
       if (date == null) return;
-
       if (!context.mounted) return;
 
       final time = await showTimePicker(
@@ -69,8 +87,7 @@ class CalendarScreen extends ConsumerWidget {
       );
 
       if (time == null) return;
-
-      if (!context.mounted) return; // just placed for uniformity as above
+      if (!context.mounted) return;
 
       final sightingDateTime = DateTime(
         date.year,
@@ -86,7 +103,7 @@ class CalendarScreen extends ConsumerWidget {
     }
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Shomer Zman')),
+      appBar: AppBar(title: const Text('Current Month')),
 
       floatingActionButton: Column(
         mainAxisSize: MainAxisSize.min,
@@ -120,29 +137,42 @@ class CalendarScreen extends ConsumerWidget {
               ),
 
               const SizedBox(height: 6),
-
               const CalendarHeader(),
-
               const TimePhaseSubHeader(),
-
               const SizedBox(height: 6),
 
               Expanded(
-                child:
-                  LunarCalendarGrid(weeks: weeks),
-                ),
+                child: LunarCalendarGrid(weeks: weeks),
+              ),
             ],
           ),
         ),
-      )
+      ),
     );
   }
 
   Widget buildSightingInfo(MoonSighting? sighting) {
-    if (sighting == null) {
-      return const Text(
-        'No moon sighting recorded',
-        style: TextStyle(fontSize: 12, color: Colors.grey),
+    final isDefault = sighting == null;
+
+    if (isDefault) {
+      return Container(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        decoration: BoxDecoration(
+          color: Colors.orange.shade50,
+          borderRadius: BorderRadius.circular(10),
+        ),
+        child: const Row(
+          children: [
+            Icon(Icons.info_outline, size: 16),
+            SizedBox(width: 8),
+            Expanded(
+              child: Text(
+                'Using default lunar reference (no sightings recorded)',
+                style: TextStyle(fontSize: 12, fontWeight: FontWeight.w500),
+              ),
+            ),
+          ],
+        ),
       );
     }
 
@@ -159,10 +189,7 @@ class CalendarScreen extends ConsumerWidget {
           Expanded(
             child: Text(
               formatSighting(sighting.recordedAt),
-              style: const TextStyle(
-                fontSize: 12,
-                fontWeight: FontWeight.w500,
-              ),
+              style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w500),
             ),
           ),
         ],

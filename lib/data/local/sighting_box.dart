@@ -1,31 +1,64 @@
 import 'package:hive/hive.dart';
 
-class SightingBox {
-  final Box box = Hive.box('sightings');
+class MoonSightingBox {
+  static const String _boxName = 'moon_sightings';
 
-  Future<void> save(String id, Map data) async {
-    await box.put(id, data);
+  Box get _box => Hive.box(_boxName);
+
+  /// Save or update a sighting
+  Future<void> save(String id, Map<String, dynamic> data) async {
+    await _box.put(id, data);
   }
 
-  List<Map> getAll() {
-    return box.values.cast<Map>().toList();
+  /// Get all sightings (safe typed)
+  List<Map<String, dynamic>> getAll() {
+    return _box.values
+        .map((e) => Map<String, dynamic>.from(e))
+        .toList();
   }
 
+  /// Get sighting by id
+  Map<String, dynamic>? getById(String id) {
+    final raw = _box.get(id);
+
+    if (raw == null) return null;
+
+    return Map<String, dynamic>.from(raw);
+  }
+
+  /// Get active sighting (where isActive == true)
+  Map<String, dynamic>? getActive() {
+    for (final entry in _box.values) {
+      final map = Map<String, dynamic>.from(entry);
+
+      if (map['isActive'] == true) {
+        return map;
+      }
+    }
+    return null;
+  }
+
+  /// Deactivate all sightings
   Future<void> clearActiveFlags() async {
-    for (var key in box.keys) {
-      final item = Map<String, dynamic>.from(box.get(key));
-      item['isActive'] = false;
-      await box.put(key, item);
+    for (final key in _box.keys) {
+      final raw = _box.get(key);
+
+      if (raw == null) continue;
+
+      final map = Map<String, dynamic>.from(raw);
+      map['isActive'] = false;
+
+      await _box.put(key, map);
     }
   }
 
-  Map? getActive() {
-    try {
-      return box.values
-          .cast<Map>()
-          .firstWhere((e) => e['isActive'] == true);
-    } catch (_) {
-      return null;
-    }
+  /// Delete a sighting
+  Future<void> delete(String id) async {
+    await _box.delete(id);
+  }
+
+  /// Clear everything (use carefully)
+  Future<void> clearAll() async {
+    await _box.clear();
   }
 }

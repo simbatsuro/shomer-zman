@@ -8,4 +8,11 @@ class AppDefaults {
   //which marks beginning of year ~6030 FC (From Creation) - Towards YHVH's time reckoning.
   static final DateTime defaultYearStart =
       DateTime(defaultYear, defaultMonth, defaultDay, defaultHour);
+
+  static DateTime get defaultSighting => DateTime(
+        defaultYear,
+        defaultMonth,
+        defaultDay,
+        defaultHour,
+      );
 }

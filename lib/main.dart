@@ -1,22 +1,19 @@
 // import 'package:flutter/material.dart';
+// import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-// void main() {
-//   runApp(const MainApp());
-// }
+// import 'app.dart';
+// import 'data/local/hive_init.dart';
 
-// class MainApp extends StatelessWidget {
-//   const MainApp({super.key});
+// void main() async {
+//   WidgetsFlutterBinding.ensureInitialized();
 
-//   @override
-//   Widget build(BuildContext context) {
-//     return const MaterialApp(
-//       home: Scaffold(
-//         body: Center(
-//           child: Text('Hellooo World!'),
-//         ),
-//       ),
-//     );
-//   }
+//   await HiveInit.init();
+
+//   runApp(
+//     const ProviderScope(
+//       child: App(),
+//     ),
+//   );
 // }
 
 import 'package:flutter/material.dart';

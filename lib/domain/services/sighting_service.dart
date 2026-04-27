@@ -4,10 +4,10 @@ import '../models/moon_sighting.dart';
 import 'lunar_engine.dart';
 
 class SightingService {
-  final SightingBox _box = SightingBox();
+  final MoonSightingBox _box = MoonSightingBox();
 
   Future<MoonSighting> recordSighting(DateTime sightingTime) async {
-    // 1. Compute month start (nearest sunset (18:00))
+    // 1. Compute month start (normalised lunar anchor)
     final monthStart = LunarEngine.normaliseSighting(sightingTime);
 
     // 2. Deactivate previous sightings
@@ -21,16 +21,19 @@ class SightingService {
       isActive: true,
     );
 
-    // 4. Store it
+    // 4. Store it (Map<String, dynamic>)
     await _box.save(sighting.id, sighting.toMap());
 
     return sighting;
   }
 
   MoonSighting? getActiveSighting() {
-    final data = _box.getActive();
-    if (data == null) return null;
+    final raw = _box.getActive();
+    if (raw == null) return null;
 
-    return MoonSighting.fromMap(data);
+    // 🔥 FIX: force safe typing boundary
+    final map = Map<String, dynamic>.from(raw);
+
+    return MoonSighting.fromMap(map);
   }
 }

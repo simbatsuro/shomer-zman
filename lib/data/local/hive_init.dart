@@ -4,6 +4,6 @@ class HiveInit {
   static Future<void> init() async {
     await Hive.initFlutter();
     await Hive.openBox('events');
-    await Hive.openBox('sightings');
+    await Hive.openBox('moon_sightings');
   }
 }
